@@ -1,0 +1,19 @@
+baseURL = "https://bobyhaha.github.io/bobyhaha_website/"
+title = "bobyhaha"
+theme = "PaperMod"
+paginate = 5
+
+[params]
+  homeInfoParams = {Title = "Your Name", Content = "Brief tagline"}
+  ShowReadingTime = false
+  ShowShareButtons = false
+
+[[menus.main]]
+  name = "About"
+  url = "/about/"
+  weight = 1
+
+[[menus.main]]
+  name = "Notes"
+  url = "/notes/"
+  weight = 2
