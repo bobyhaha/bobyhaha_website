@@ -5,12 +5,12 @@ layout: "single"
 
 My name is Baiyu Zhu. Here is my [CV](/bobyhaha_website/cv.pdf).
 
-I am a student at MIT studying physics and mathematics. As for now, I'm currently working in interpretability, specifically explaining how AI works using a more physics-like perspective. I'm working with Ziming Liu but I'm still relatively new to this field. However, I hope that my notes are helpful to the readers, offering fresh and interesting insights.
+I am a student at MIT studying physics and mathematics. I am currently working on interpretability, with a particular interest in understanding AI through a more physics-inspired perspective. I am working with Ziming Liu, and although I am still relatively new to the field, I hope these notes can offer readers fresh and useful insights.
 
-I'm very interested in High Energy Physics and Mathematics. I have also worked with Condensed Matter Physics, but I think there are more things going on with AI. I believe it would be valuable to offer more insights from a different perspective, hoping to foster developments of more powerful AI models. This is one of the reason why I write blogs on this website!
+I am deeply interested in high energy physics and mathematics. I have also worked in condensed matter physics, but at this stage I feel that AI is where many especially interesting things are happening. I believe it is valuable to bring perspectives from physics and mathematics into AI, both to better understand existing systems and to help inspire the development of more powerful models. That is one of the reasons I write on this website.
 
-![photo](/images/photo.jpg)
+<!-- ![photo](/profile.png) -->
 
-> Now, bring your own colors to this world!
+> “Now, bring your own colors to this world!”
 >
 > — bobyhaha

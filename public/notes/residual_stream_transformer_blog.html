@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Residual Stream: A Unified View of How Transformers Think</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --ink: #1f1f1f;
+      --muted: #666;
+      --faint: #8a8a8a;
+      --surface: #f6f6f6;
+      --border: #e2e2e2;
+      --border-em: #cfcfcf;
+      --accent-bg: #eef4ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .blog {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.85;
+      color: var(--ink);
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .blog-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      margin-bottom: 2.5rem;
+      border-left: 2px solid var(--border-em);
+      padding-left: 1rem;
+    }
+
+    .blog h1 {
+      font-size: 2.1rem;
+      font-weight: 500;
+      line-height: 1.25;
+      margin: 0 0 1rem;
+      color: var(--ink);
+    }
+
+    .blog h2 {
+      font-size: 1.35rem;
+      font-weight: 500;
+      margin: 3rem 0 1rem;
+      color: var(--ink);
+      border-top: 0.5px solid var(--border);
+      padding-top: 2rem;
+    }
+
+    .blog h3 {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 2rem 0 0.75rem;
+    }
+
+    .blog p {
+      margin: 0 0 1.25rem;
+    }
+
+    .blog code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82em;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .math-block {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin: 1.4rem 0;
+      overflow-x: auto;
+      color: var(--ink);
+    }
+
+    .aside {
+      border-left: 2px solid var(--border-em);
+      padding: 0.85rem 1.15rem;
+      margin: 1.75rem 0;
+      background: var(--surface);
+      border-radius: 0 10px 10px 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .aside strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .layer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1.5rem 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .layer-table th {
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.78rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 0.5px solid var(--border-em);
+      padding: 0.5rem 0.75rem 0.5rem 0;
+    }
+
+    .layer-table td {
+      padding: 0.7rem 0.75rem 0.7rem 0;
+      border-bottom: 0.5px solid var(--border);
+      vertical-align: top;
+      color: var(--ink);
+    }
+
+    .layer-table td:first-child {
+      font-weight: 600;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .step-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 1.5rem;
+      counter-reset: steps;
+    }
+
+    .step-list li {
+      counter-increment: steps;
+      position: relative;
+      padding-left: 4.4rem;
+      margin-bottom: 1.15rem;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 0.1rem;
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 0.5px solid var(--border-em);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .step-list strong {
+      font-weight: 700;
+    }
+
+    .eq-inline {
+      white-space: nowrap;
+    }
+
+    .refs {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 0.5px solid var(--border);
+      padding-top: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .refs p {
+      margin: 0 0 0.45rem;
+      line-height: 1.5;
+    }
+
+    .refs em {
+      font-style: italic;
+    }
+
+    .divider {
+      border: none;
+      border-top: 0.5px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    .tree-diagram {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--muted);
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .highlight-row {
+      background: var(--accent-bg);
+    }
+
+    mjx-container[jax="CHTML"] {
+      font-size: 1em !important;
+      line-height: 1 !important;
+    }
+
+    mjx-container[jax="CHTML"][display="true"] {
+      margin: 0.2rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.2rem 0;
+    }
+
+    .math-block mjx-container[jax="CHTML"][display="true"] {
+      margin: 0 !important;
+    }
+
+    @media (max-width: 700px) {
+      .blog {
+        font-size: 16px;
+        padding: 2rem 1rem 3rem;
+      }
+
+      .blog h1 {
+        font-size: 1.8rem;
+      }
+
+      .step-list li {
+        padding-left: 3.6rem;
+      }
+
+      .step-list li::before {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  </style>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: {
+        matchFontHeight: false
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <div class="blog">
+
+    <p class="blog-meta">2026-04-12 &nbsp;·&nbsp; transformer internals &nbsp;·&nbsp; mechanistic interpretability</p>
+
+    <h1>The Residual Stream: A Unified View of How Transformers Think</h1>
+
+    <p>This blog is inspired by Distill-style writing. I believe it is valuable to revisit foundational ideas carefully and from a fresh perspective, and that is the main goal of this post. I hope readers will find this viewpoint both intuitive and useful.</p>
+
+    <p>Modern transformer models can look complicated: stacked attention heads, feed-forward networks, layer norms, skip connections. But beneath that engineering complexity lies a surprisingly elegant story about what these components are doing. At a high level, they are all participating in the gradual refinement of a shared, evolving representation, one additive update at a time.</p>
+
+    <p>This post develops that picture carefully. I will argue that both attention and MLP layers can be viewed as mechanisms for reading from a shared scratchpad and writing targeted updates back into it. They differ not in whether they refine the representation, but in how they decide what to read and what to write.</p>
+
+    <h2>The residual stream as a shared scratchpad</h2>
+
+    <p>At the heart of every transformer is the <em>residual stream</em>: a vector at each token position that persists across all layers of the network. A useful mental picture is to think of it as a shared whiteboard or scratchpad that every layer can read from and write to.</p>
+
+    <p>The key point is that attention and MLP layers do not replace the residual stream. They only add to it. Formally, the update takes the form</p>
+
+    <div class="math-block">
+      \[
+      x_{\text{new}} = x_{\text{old}} + \mathrm{Layer}(x_{\text{old}})
+      \]
+    </div>
+
+    <p>This is the role of the skip connection. If a layer has little to contribute, it can output a near-zero vector and leave the representation almost unchanged. Information written earlier therefore remains available to downstream computations. From this perspective, the forward pass of a transformer is a sequence of incremental edits to a persistent shared state.</p>
+
+    <div class="aside">
+      <strong>A useful metaphor.</strong> The model is repeatedly revising the same draft rather than rewriting it from scratch. Each layer adds, sharpens, redirects, or partially cancels what is already present.
+    </div>
+
+    <h2>Attention: exchanging information globally, through weighted transport</h2>
+
+    <p>Attention is the mechanism that allows token positions to exchange information. To make this concrete, it is worth tracing the computation for a single token at a single attention head.</p>
+
+    <ol class="step-list">
+      <li><strong>Query.</strong> The token forms a query vector <span class="eq-inline">\( q = W_Q x \)</span>, representing what information it is currently looking for.</li>
+      <li><strong>Keys.</strong> Every token forms a key vector <span class="eq-inline">\( k_j = W_K x_j \)</span>, representing what information it can offer.</li>
+      <li><strong>Scores.</strong> The relevance between the querying token and token <span class="eq-inline">\(j\)</span> is measured by the dot product <span class="eq-inline">\( q \cdot k_j \)</span>. After scaling and softmax, these become attention weights <span class="eq-inline">\( \alpha_j \)</span>, which sum to <span class="eq-inline">\(1\)</span>.</li>
+      <li><strong>Values.</strong> Each token also produces a value vector <span class="eq-inline">\( v_j = W_V x_j \)</span>. The head retrieves the weighted sum <span class="eq-inline">\( \sum_j \alpha_j v_j \)</span>.</li>
+      <li><strong>Write-back.</strong> This result is projected by <span class="eq-inline">\( W_O \)</span> and added back into the querying token’s residual stream.</li>
+    </ol>
+
+    <p>Aside from the softmax gating, the actual information transfer is linear: the head writes back a weighted linear combination of value vectors. In this sense, attention acts like a routing rule for deciding which other tokens get to modify the current token’s state.</p>
+
+    <p>This is why attention is such a powerful mechanism for global information exchange. A token can directly incorporate information from faraway positions in the sequence, and it does so by adding a context-dependent update to its residual stream.</p>
+
+    <div class="aside">
+      <strong>What about erasing?</strong> Attention cannot literally delete information. It can only add vectors. What looks like erasure is usually implemented by later layers adding vectors that partially cancel earlier ones.
+    </div>
+
+    <p>The broader point is that the architecture strongly favors linear transport and linear composition, even though the gating itself is nonlinear. That makes linear structure in representation space especially useful for the model.</p>
+
+    <h2>MLP layers: refinement through learned memory</h2>
+
+    <p>If attention is the mechanism for exchanging information across positions, the MLP is the mechanism for refining each token’s representation using learned internal memory. For a single token, the MLP computes</p>
+
+    <div class="math-block">
+      \[
+      \mathrm{MLP}(x) = W_{\text{out}} \, f(W_{\text{in}}x)
+      \]
+    </div>
+
+    <p>This can be read in three steps.</p>
+
+    <ol class="step-list">
+      <li><strong>Pattern matching.</strong> The matrix <span class="eq-inline">\( W_{\text{in}} \)</span> computes scores for many learned patterns by taking dot products with the current token representation.</li>
+      <li><strong>Gating.</strong> The nonlinearity <span class="eq-inline">\( f \)</span> selects which of those patterns are active in the current context.</li>
+      <li><strong>Write-back.</strong> The matrix <span class="eq-inline">\( W_{\text{out}} \)</span> turns the activated pattern scores into a weighted combination of output directions, which is then added back to the residual stream.</li>
+    </ol>
+
+    <p>This is why MLPs are often interpreted as a kind of key-value memory. The rows of <span class="eq-inline">\( W_{\text{in}} \)</span> act like keys, the output directions of <span class="eq-inline">\( W_{\text{out}} \)</span> act like values, and the nonlinearity serves as a retrieval gate.</p>
+
+    <p>The important unifying point is that the MLP is also performing refinement by additive update. Unlike attention, it does not communicate across token positions. But it still reads the current residual state, computes what should be added, and writes that update back into the same shared stream.</p>
+
+    <h3>MLP as knowledge storage</h3>
+
+    <p>This key-value perspective suggests that MLP weights are not merely generic machinery. They can be understood as a form of learned knowledge storage. When the current token state matches the right pattern, the corresponding value directions are written into the stream.</p>
+
+    <h3>MLP as a refinement filter</h3>
+
+    <p>Because the MLP acts after attention within a block, it processes a representation that has already been enriched by contextual information from other tokens. In that sense, the MLP can be viewed as a refinement filter: it can amplify useful directions, add implications suggested by the new context, and sometimes help suppress less relevant information through later cancellation.</p>
+
+    <div class="aside">
+      <strong>A compact summary.</strong> Attention assembles; MLP distills. Attention gathers context from elsewhere in the sequence, while the MLP transforms that enriched local state using learned internal structure.
+    </div>
+
+    <h2>A walkthrough: from zero to two layers</h2>
+
+    <p>This section is inspired in part by <em>A Mathematical Framework for Transformer Circuits</em>, especially the idea that depth can be understood in terms of progressively richer in-context computation. My discussion here extends that picture by emphasizing the role of both attention and MLP updates in refining the residual stream.</p>
+
+    <p>The residual-stream view becomes especially clear when we trace how capability grows with depth.</p>
+
+    <table class="layer-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>What it can do</th>
+          <th>How the residual stream is used</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0-layer</td>
+          <td>Token-to-output mapping only</td>
+          <td>The embedding is read almost directly by the unembedding, <span class="eq-inline">\( x_{\text{out}} = W_U W_E x \)</span>. There is essentially no in-context processing.</td>
+        </tr>
+        <tr>
+          <td>1-layer</td>
+          <td>One round of contextual modification</td>
+          <td>A single attention layer can read earlier tokens and write context-dependent information into the stream. The MLP can then further refine that representation.</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>2-layer</td>
+          <td>Composed in-context reasoning</td>
+          <td>The second layer receives a stream already edited by the first. This allows more compositional behavior, because the first layer can shape the representation used by the second layer to form its queries, keys, and values.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>One clean way to write a transformer block is</p>
+
+    <div class="math-block">
+      \[
+      a^{(\ell)} = x^{(\ell-1)} + \mathrm{Attn}_{\ell}(x^{(\ell-1)})
+      \]
+      \[
+      x^{(\ell)} = a^{(\ell)} + \mathrm{MLP}_{\ell}(a^{(\ell)})
+      \]
+    </div>
+
+    <p>Each additional layer adds another round of “read the current stream, compute an update, add it back.” The final representation is the accumulated result of these edits. This is gradual refinement made explicit in the algebra.</p>
+
+    <p>As depth increases, we should expect models to develop richer in-context algorithms. For example, more structured behaviors such as induction-style circuits only become available once enough layers exist to support this kind of composition.</p>
+
+    <h2>Layer norm and the geometry of search</h2>
+
+    <p>Without normalization, the residual stream could become unstable in scale as updates accumulate. If the scale of the representation drifts too much, then the resulting query, key, and value vectors may become poorly behaved relative to one another. Layer normalization helps keep the representation in a controlled regime before each attention or MLP block reads it.</p>
+
+    <p>Combined with residual connections, this improves optimization stability and gives gradients a more reliable path backward. Intuitively, normalization restricts the range of scales the model is allowed to operate in. One can think of this as making the model’s search through representation space more controlled and less chaotic.</p>
+
+    <p>I would treat this as a useful intuition rather than a fully precise theorem: normalization can be seen as stabilizing the geometry of the space in which refinement occurs. This stability is helpful for training, even if it sometimes makes mechanistic analysis harder because the scaling becomes data-dependent.</p>
+
+    <div class="aside">
+      <strong>A tradeoff.</strong> Normalization helps keep training stable, but it also makes the representation geometry harder to read off directly, since scale now depends on the current input.
+    </div>
+
+    <h2>The stickiness problem</h2>
+
+    <p>The residual stream’s greatest strength is also a potential weakness. Information written early is not truly deleted. It remains present unless later layers spend capacity adding vectors that counteract it. This makes information “sticky”: easy to preserve, but sometimes costly to suppress.</p>
+
+    <p>This perspective suggests one possible explanation for why some layers may appear to perform similar or incremental computations. If the model operates on a shared persistent stream, later layers may repeatedly refine partially processed information rather than replacing it outright. That does not prove that all apparent redundancy comes from the residual stream, but it does make such behavior easier to understand.</p>
+
+    <p>This also raises an interesting speculative question: what would happen if different layers operated in more strongly differentiated representation spaces, rather than repeatedly editing a single shared one? My guess is that such a design could increase capacity in some settings, though this is only an intuition for now.</p>
+
+    <p>More broadly, one can ask whether future architectures should give themselves greater ability to reorganize, compress, or selectively preserve information as depth increases. Thinking in terms of residual-stream refinement may help make such design questions more concrete.</p>
+
+    <h2>Linear representations: the expected geometry of a mostly linear machine</h2>
+
+    <p>There is a natural reason to expect transformer representations to exhibit substantial linear structure. Both attention and MLP layers rely heavily on linear maps, dot products, and additive composition. If much of the computation proceeds through operations of this kind, it is unsurprising that useful features are often stored as directions in representation space that can be read out and combined linearly.</p>
+
+    <div class="math-block">
+      \[
+      \mathrm{vec}(\text{king}) - \mathrm{vec}(\text{man}) + \mathrm{vec}(\text{woman}) \approx \mathrm{vec}(\text{queen})
+      \]
+    </div>
+
+    <p>Examples like this are not merely curiosities. They suggest that the architecture finds linear structure convenient and computationally accessible.</p>
+
+    <h2>Nonlinear representations: the frontier</h2>
+
+    <p>Of course, linearity cannot be the whole story. Deep models compose many stages of gated, context-dependent computation, and the resulting geometry can be far richer than a single linear map would suggest. One layer may write a rough approximation, later layers may reshape it, and the final representation can reflect a highly nonlinear computation built out of many locally simple steps.</p>
+
+    <p>In that sense, deep transformers can construct curved reasoning from repeated additive refinements.</p>
+
+    <h2>All flows through the residual stream</h2>
+
+    <p>Every piece of information a transformer processes, whether read from tokens, retrieved from learned memory, exchanged through attention, or composed across layers, ultimately lives in the residual stream. The stream is the model’s memory, workspace, and communication bus all at once.</p>
+
+    <div class="tree-diagram">input embeddings (layer 0)
+  │
+  ├─ attn₁ writes context-dependent information across tokens
+  ├─ mlp₁  refines each token using learned memory
+  │
+  ├─ attn₂ reads a stream already shaped by layer 1
+  ├─ mlp₂  further distills and redirects the representation
+  │
+  ├─ ...
+  │
+  └─ unembedding reads the fully refined vector → next-token distribution</div>
+
+    <p>The overall process is one of progressive refinement: a rough input representation becomes a detailed, context-sensitive, knowledge-enriched vector at the output. Layer by layer, the model keeps editing the same shared stream.</p>
+
+    <p>This perspective is useful not only as an explanation of transformers, but also as a guide for interpretability. If so much of the model’s computation consists of writing into and reading from the residual stream, then understanding the dynamics of that stream may be more illuminating than treating attention heads and MLPs as isolated modules.</p>
+
+    <h2>Future blogs</h2>
+
+    <p>In this post I have tried to establish a framework for interpreting transformers using more physics-like mental pictures. In future blogs, I want to push this viewpoint further and use it to think about modern architectures such as MoE models and ideas like attention residuals. My hope is that this refinement-based perspective will continue to provide a useful conceptual thread.</p>
+
+    <p>Acknowledgement: this blog was created in collaboration with ChatGPT and Claude 4.6 Sonnet. I would also like to thank Ziming Liu and the members of Liu’s group for many helpful discussions.</p>
+
+    <hr class="divider" />
+
+    <div class="refs">
+      <p>Elhage et al. (2021). <em>A Mathematical Framework for Transformer Circuits.</em></p>
+      <p>Geva et al. (2020). <em>Transformer Feed-Forward Layers Are Key-Value Memories.</em></p>
+      <p>Elhage et al. (2022). <em>Toy Models of Superposition.</em></p>
+      <p>He et al. (2015). <em>Deep Residual Learning for Image Recognition.</em></p>
+      <p>Mikolov et al. (2013). <em>Efficient Estimation of Word Representations in Vector Space.</em></p>
+      <p>Xie et al. (2025). <em>Manifold-Constrained Hyper-Connections (mHC).</em></p>
+      <p>Guo et al. (2025). <em>DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.</em></p>
+      <p>Kimi Team et al. (2026). <em>Attention Residuals.</em></p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -17,4 +17,4 @@ Current topics I'm thinking about:
 
 ## Recent Notes
 
-- [My First Note](/bobyhaha_website/notes/my-first-note/)
+- [Residual Stream Transformer Blog](/bobyhaha_website/notes/residual_stream_transformer_blog.html)
