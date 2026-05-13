@@ -2,20 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Notes on bobyhaha</title>
-    <link>http://localhost:1313/bobyhaha_website/notes/</link>
+    <link>https://bobyhaha.github.io/bobyhaha_website/notes/</link>
     <description>Recent content in Notes on bobyhaha</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 12 Apr 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/bobyhaha_website/notes/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>The Residual Stream: A Unified View of How Transformers Think</title>
-      <link>http://localhost:1313/bobyhaha_website/notes/notes1/</link>
-      <pubDate>Sun, 12 Apr 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/bobyhaha_website/notes/notes1/</guid>
-      <description>&lt;p&gt;Modern transformer models look complicated — stacked attention heads, feed-forward networks, layer norms, skip connections. But underneath the engineering, there is a surprisingly elegant story about what all of these pieces are actually doing: &lt;strong&gt;gradually refining a shared, evolving representation of meaning&lt;/strong&gt;, one additive update at a time.&lt;/p&gt;
-&lt;h2 id=&#34;the-residual-stream-as-a-shared-scratchpad&#34;&gt;The Residual Stream as a Shared Scratchpad&lt;/h2&gt;
-&lt;p&gt;At the heart of every transformer is the &lt;strong&gt;residual stream&lt;/strong&gt; — a vector for each token position that persists across every layer of the network. You can think of it as a shared whiteboard that every layer reads from and writes to.&lt;/p&gt;</description>
-    </item>
+    <atom:link href="https://bobyhaha.github.io/bobyhaha_website/notes/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

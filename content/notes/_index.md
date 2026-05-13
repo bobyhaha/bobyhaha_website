@@ -30,3 +30,4 @@ This page reflects that spirit — a place to explore ideas freely, even when th
 ## Recent Notes
 
 - [Residual Stream Transformer Blog](/bobyhaha_website/notes/residual_stream_transformer_blog.html)
+- [Features as Statistics, Not Atoms](/bobyhaha_website/notes/feature_statistics_and_many_pipes.html)

@@ -425,7 +425,7 @@
     <p>Combined with residual connections, this improves optimization stability and gives gradients a more reliable path backward. Intuitively, normalization restricts the range of scales the model is allowed to operate in. One can think of this as making the model’s search through representation space more controlled and less chaotic.</p>
 
     <p>I would treat this as a useful intuition rather than a fully precise theorem: normalization can be seen as stabilizing the geometry of the space in which refinement occurs. This stability is helpful for training, even if it sometimes makes mechanistic analysis harder because the scaling becomes data-dependent.</p>
-
+    <p>The above analysis suggests an interesting connection to recent architectural ideas that explicitly constrain how representations evolve. For example, the mHC paper can be read as exploring the broader design principle that controlling the geometry of updates may improve training stability. I do not mean that layer normalization and mHC are identical mechanisms. Rather, they seem to point in a similar conceptual direction: unrestricted representational growth can be unstable, and carefully constraining how the residual stream evolves may be a useful inductive bias.</p>
     <div class="aside">
       <strong>A tradeoff.</strong> Normalization helps keep training stable, but it also makes the representation geometry harder to read off directly, since scale now depends on the current input.
     </div>
