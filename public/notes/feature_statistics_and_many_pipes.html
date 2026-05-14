@@ -280,11 +280,15 @@
 
     <p>The limited effectiveness of steering with one vector direction supports this concern. If a concept is distributed across many related features, nudging one direction may only weakly perturb the underlying computation.</p>
 
+    <p>This also prevents a common interpretability mistake: a weak effect from single-feature steering can be misread as evidence that the underlying hypothesis is weak. Under a many-pipes representation, that weak effect is often exactly what we should expect, because redundancy lets the model route around one intervention.</p>
+
     <h2>The many-pipes view of concepts</h2>
 
     <p>For large models, a concept should not be expected to correspond to one unique feature. A better picture is a large family of related features carrying overlapping pieces of the same concept.</p>
 
     <p>A helpful analogy is many pipes feeding the same outcome. If behavior is supported by many similar channels, blocking only one or a few channels may produce little visible effect.</p>
+
+    <p>Seen this way, "one pipe did not change much" is not strong evidence against feature-level causality. It can simply mean the intervention was too local. Results like Goodfire's Llama 3 steering analysis suggest that clearer behavioral shifts may require coordinated blocking across multiple related pipes, not isolated steering of a single feature.</p>
 
     <div class="tree-diagram">concept C
   │
@@ -319,6 +323,7 @@
       <p>Geva et al. (2020). <em>Transformer Feed-Forward Layers Are Key-Value Memories.</em></p>
       <p>Elhage et al. (2022). <em>Toy Models of Superposition.</em></p>
       <p>Conmy et al. (2023). <em>Towards Automated Circuit Discovery for Mechanistic Interpretability.</em></p>
+      <p>Goodfire (2024). <em>Understanding and Steering Llama 3.</em> https://www.goodfire.ai/research/understanding-and-steering-llama-3#</p>
     </div>
 
   </div>
