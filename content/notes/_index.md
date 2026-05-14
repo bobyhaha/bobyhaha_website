@@ -6,7 +6,7 @@ Welcome to my notes — a collection of thoughts, ideas, and explorations at the
 
 I hope these notes offer something useful or interesting. Some posts are polished; others are rough and half-formed. That’s intentional — good ideas rarely arrive fully formed.
 
-I’m particularly inspired by Xiaogang Wen’s perspective on developing fundamental, field-changing ideas:
+I’m particularly inspired by Xiaogang Wen’s perspective on developing fundamental, field-changing ideas
 
 > "To make revolutionary advances in physics, we cannot allow our imaginations to be trapped by the formalism. We cannot allow the formalism to define the boundary of our imagination."
 
