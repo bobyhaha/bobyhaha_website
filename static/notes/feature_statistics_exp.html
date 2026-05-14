@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Features as Statistics in a Toy Model</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --ink: #1f1f1f;
+      --muted: #666;
+      --faint: #8a8a8a;
+      --surface: #f6f6f6;
+      --border: #e2e2e2;
+      --border-em: #cfcfcf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .blog {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.85;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .blog-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      margin-bottom: 2.5rem;
+      border-left: 2px solid var(--border-em);
+      padding-left: 1rem;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 500;
+      line-height: 1.25;
+      margin: 0 0 1rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 500;
+      margin: 3rem 0 1rem;
+      border-top: 0.5px solid var(--border);
+      padding-top: 2rem;
+    }
+
+    h3 {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 2rem 0 0.75rem;
+    }
+
+    p {
+      margin: 0 0 1.25rem;
+    }
+
+    a {
+      color: #275f75;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 0.08rem 0.25rem;
+    }
+
+    .aside {
+      border-left: 2px solid var(--border-em);
+      padding: 0.85rem 1.15rem;
+      margin: 1.75rem 0;
+      background: var(--surface);
+      border-radius: 0 10px 10px 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .aside strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .math-block {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin: 1.4rem 0;
+      overflow-x: auto;
+    }
+
+    .step-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 1.5rem;
+      counter-reset: steps;
+    }
+
+    .step-list li {
+      counter-increment: steps;
+      position: relative;
+      padding-left: 4.4rem;
+      margin-bottom: 1.15rem;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 0.1rem;
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 0.5px solid var(--border-em);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.4rem 0 1.8rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    th, td {
+      border-bottom: 0.5px solid var(--border);
+      padding: 0.65rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: var(--surface);
+    }
+
+    figure {
+      margin: 2rem 0;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0.5px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+    }
+
+    figcaption {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      padding: 0;
+      margin: 1rem 0 1.5rem;
+      list-style: none;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.9rem;
+    }
+
+    .link-grid a {
+      display: block;
+      padding: 0.65rem 0.75rem;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      text-decoration: none;
+    }
+
+    .tree-diagram {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--muted);
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .refs {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 0.5px solid var(--border);
+      padding-top: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .refs p {
+      margin: 0 0 0.45rem;
+      line-height: 1.5;
+    }
+
+    .divider {
+      border: none;
+      border-top: 0.5px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    @media (max-width: 700px) {
+      .blog {
+        font-size: 16px;
+        padding: 2rem 1rem 3rem;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .step-list li {
+        padding-left: 3.6rem;
+      }
+
+      .step-list li::before {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .link-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: {
+        matchFontHeight: false
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <div class="blog">
+
+    <p class="blog-meta">2026-05-14 &nbsp;·&nbsp; continuous features &nbsp;·&nbsp; mechanistic interpretability</p>
+
+    <h1>Features as Statistics in a Toy Model</h1>
+
+    <p>The previous blog argued that features are better understood as statistics than atoms. A feature is meaningful because of what it does for optimization and behavior, not because it is cleanly named in isolation.</p>
+
+    <p>This blog investigates how tokens are represented and distributed in representation space. The model is a basic Transformer trained on a simple function-prediction task over pairs <code>(z, f(x))</code>, where the input token string z takes the form <code>"x=-2.500;y="</code>.</p>
+
+    <div class="aside">
+      <strong>Experiment claim.</strong> The model does not merely learn a feature for <code>x</code>. It learns a task-shaped statistic: a representation whose geometry depends on which function it must compute.
+    </div>
+
+    <h2>The setup</h2>
+
+    <p>The four tasks are <code>identity</code>, <code>square</code>, <code>sin</code>, and <code>gaussian</code>. For each checkpoint, I sample 1000 evenly spaced values of <code>x</code>, run the prompt, and collect the representation of the last prompt token (the equals sign <code>=</code>) before target generation begins.</p>
+
+    <div class="math-block">
+      \[
+      h(z) = \text{representation of the final prompt token } (=)
+      \]
+      \[
+      z\mapsto h(z)
+      \]
+    </div>
+
+    <p>I then visualize $h(z)$ with PCA and UMAP, measure distance correlations with both $x$ and $y$, and track how the geometry changes during training. The run uses 3000 steps, with dense early checkpoints because most of the behavioral transition happens quickly.</p>
+
+    <h2>Why this tests the framework</h2>
+
+    <p>If features were atoms, one might expect a clean internal variable for <code>x</code>, reused across the tasks. But the statistics view predicts something subtler: the useful internal quantity should depend on the objective. A model trained on <code>square</code> may care about magnitude more than sign. A model trained on <code>sin</code> may care about periodic functional structure. A model trained on <code>identity</code> should preserve the input coordinate more directly.</p>
+
+    <p>That is roughly what the results show.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Final token accuracy</th>
+          <th>Final PCA participation ratio</th>
+          <th>Final distance correlation</th>
+          <th>Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>identity</td>
+          <td>100.0%</td>
+          <td>2.87</td>
+          <td>$x$: 0.492, $y$: 0.492</td>
+          <td>A stable low-dimensional coordinate for the input.</td>
+        </tr>
+        <tr>
+          <td>square</td>
+          <td>85.5%</td>
+          <td>6.91</td>
+          <td>$x$: 0.223, $y$: 0.425</td>
+          <td>A more distributed statistic, closer to output value than signed input.</td>
+        </tr>
+        <tr>
+          <td>sin</td>
+          <td>96.5%</td>
+          <td>1.40</td>
+          <td>$x$: 0.618, $y$: 0.694</td>
+          <td>A compressed curve-like statistic with strong functional ordering.</td>
+        </tr>
+        <tr>
+          <td>gaussian</td>
+          <td>98.1%</td>
+          <td>3.71</td>
+          <td>$x$: 0.449, $y$: 0.181</td>
+          <td>A folded geometry where raw x-bin clustering is not the right summary.</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <h2>Linear directions are useful but incomplete</h2>
+
+    <p>PCA is still a good sanity check. Identity becomes readable with a few directions. Sine remains compressed, with the first PCA direction explaining most variance. But square spreads into a higher-dimensional representation, and the UMAP view makes its local neighborhoods easier to inspect.</p>
+
+    <p>This matches three cautions from the broader framework:</p>
+
+    <ol class="step-list">
+      <li><strong>Residual information.</strong> Important signal can live outside the top few linear directions.</li>
+      <li><strong>Nonlinear structure.</strong> Relevant computation can depend on folds, curves, and local neighborhoods.</li>
+      <li><strong>Relational encoding.</strong> Meaning can live in distances among points, not in one named feature alone.</li>
+    </ol>
+
+    
+    <h2>Interactive artifacts</h2>
+
+    <p>The UMAP plots are the best way to inspect the new result. PCA is included as a more stable global baseline. One caveat: UMAP is recomputed independently at every checkpoint, so the animation should be read as a sequence of geometries rather than literal point motion in a fixed coordinate system.</p>
+
+    <ul class="link-grid">
+      <li><a href="../plots/identity/interactive_umap.html">Identity interactive UMAP</a></li>
+      <li><a href="../plots/identity/interactive_pca.html">Identity interactive PCA</a></li>
+      <li><a href="../plots/square/interactive_umap.html">Square interactive UMAP</a></li>
+      <li><a href="../plots/square/interactive_pca.html">Square interactive PCA</a></li>
+      <li><a href="../plots/sin/interactive_umap.html">Sine interactive UMAP</a></li>
+      <li><a href="../plots/sin/interactive_pca.html">Sine interactive PCA</a></li>
+      <li><a href="../plots/gaussian/interactive_umap.html">Gaussian interactive UMAP</a></li>
+      <li><a href="../plots/gaussian/interactive_pca.html">Gaussian interactive PCA</a></li>
+    </ul>
+
+    <h2>Conclusion</h2>
+
+    <p>In summary, as training and testing accuracy increase, meaningful clusters emerge in representation space. This supports the claim from the previous blog that we should think in terms of a feature manifold, rather than a single LRH-style feature view.</p>
+
+    <p>The key point is that learning does not just create isolated features. It reshapes the geometry of token representations into task-useful structure.</p>
+
+    <hr class="divider" />
+
+    <div class="refs">
+      <p>Anthropic (2022). <em>In-context Learning and Induction Heads.</em></p>
+      <p>Geva et al. (2020). <em>Transformer Feed-Forward Layers Are Key-Value Memories.</em></p>
+      <p>Elhage et al. (2022). <em>Toy Models of Superposition.</em></p>
+      <p>Conmy et al. (2023). <em>Towards Automated Circuit Discovery for Mechanistic Interpretability.</em></p>
+      <p>Goodfire (2024). <em>Understanding and Steering Llama 3.</em> https://www.goodfire.ai/research/understanding-and-steering-llama-3</p>
+    </div>
+
+  </div>
+</body>
+</html>
